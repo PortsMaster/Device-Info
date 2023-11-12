@@ -19,7 +19,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # get current resolution
-IFS='x' read -r DISPLAY_WIDTH DISPLAY_HEIGHT < <($SCRIPT_DIR/sdl_resolution | awk -F ': ' '{print $2}')
+IFS='x' read -r DISPLAY_WIDTH DISPLAY_HEIGHT < <($SCRIPT_DIR/sdl_resolution 2> /dev/null | grep -a 'Current' | awk -F ': ' '{print $2}')
 
 # Check if the values are not empty, otherwise, set default resolution
 if [ -z "$DISPLAY_WIDTH" ] || [ -z "$DISPLAY_HEIGHT" ]; then
@@ -54,6 +54,10 @@ elif [ -f "~/.config/.OS_ARCH" ]; then
     DEVICE_NAME=$(cat "~/.config/.OS_ARCH")
 elif [ -f "/sys/firmware/devicetree/base/model" ]; then
     DEVICE_NAME=$(cat "/sys/firmware/devicetree/base/model" | cut -d' ' -f 2)
+
+    if [[ "${DEVICE_NAME}" == "" ]]; then
+        DEVICE_NAME=$(cat "/sys/firmware/devicetree/base/model")
+    fi
 else
     DEVICE_NAME="Unknown"
 fi
@@ -88,6 +92,10 @@ case "${DEVICE_NAME}" in
     "Amlogic-ng")
         DEVICE_NAME=$(cat "/sys/firmware/devicetree/base/model" | cut -d' ' -f 2)
         DEVICE_CPU="S922X"
+        ;;
+
+    "ODROID-GO Super")
+        DEVICE_CPU="RK3326"
         ;;
 esac
 
