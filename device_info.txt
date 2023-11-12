@@ -45,36 +45,60 @@ fi
 
 DEVICE_RAM=$(free -t | grep 'Total:' | awk '{printf("%.0f", ($2 / 1024 / 1024))}')
 
+# Get DEVICE_NAME
 if [[ "$CFW_NAME" == "EmuELEC" ]]; then
-    DEVICE_NAME=$(cat "/sys/firmware/devicetree/base/model" | cut -d' ' -f 2)
+    DEVICE_NAME=$(grep -a '^COREELEC_DEVICE=".*"' /etc/os-release | cut -d'"' -f 2)
 elif [ -f "~/.config/.DEVICE" ]; then
     DEVICE_NAME=$(cat "~/.config/.DEVICE")
 elif [ -f "~/.config/.OS_ARCH" ]; then
     DEVICE_NAME=$(cat "~/.config/.OS_ARCH")
 elif [ -f "/sys/firmware/devicetree/base/model" ]; then
     DEVICE_NAME=$(cat "/sys/firmware/devicetree/base/model" | cut -d' ' -f 2)
+else
+    DEVICE_NAME="Unknown"
 fi
 
 ANALOG_STICKS=2
+DEVICE_CPU="Unknown"
 
-##### FIXERUPPER
+## FIXES
 # Here is where we can add custome rules to fill out extra info on the device.
 case "${DEVICE_NAME}" in
+    "RK3366")
+        DEVICE_CPU="RK3366"
+        ;;
+
     "RG353V"|"RG353P"|"RG353VS"|"RG353PS"|"RG353M")
         DEVICE_CPU="RK3366"
         ;;
-    "RG351MP")
+
+    "RG351MP"|"RG351P")
         DEVICE_CPU="RK3326"
         ;;
+
+    "RG351V")
+        ANALOG_STICKS=1
+        DEVICE_CPU="RK3326"
+        ;;
+
     "RG552")
         DEVICE_CPU="RK3399"
+        ;;
+
+    "Amlogic-ng")
+        DEVICE_NAME=$(cat "/sys/firmware/devicetree/base/model" | cut -d' ' -f 2)
+        DEVICE_CPU="S922X"
         ;;
 esac
 
 echo "# ${DEVICE_NAME} - ${CFW_NAME}"
+echo "\`\`\`bash"
 echo "CFW_NAME=${CFW_NAME}"
 echo "CFW_VERSION=${CFW_VERSION}"
 echo "DEVICE_NAME=${DEVICE_NAME}"
+echo "DEVICE_CPU=${DEVICE_CPU}"
 echo "DEVICE_RAM=${DEVICE_RAM}"
 echo "DISPLAY_WIDTH=${DISPLAY_WIDTH}"
 echo "DISPLAY_HEIGHT=${DISPLAY_HEIGHT}"
+echo "ANALOG_STICKS=${ANALOG_STICKS}"
+echo "\`\`\`"
