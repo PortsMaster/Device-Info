@@ -1,0 +1,80 @@
+#!/bin/bash
+
+## New Device Info
+#
+# Seems to be working:
+# - DISPLAY_WIDTH
+# - DISPLAY_HEIGHT
+# - CFW_NAME
+# - CFW_VERSION
+# - DEVICE_RAM
+
+# Needs testing:
+# - DEVICE_NAME
+
+# To be done:
+# - ANALOG_STICKS
+# - DEVICE_CPU
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# get current resolution
+IFS='x' read -r DISPLAY_WIDTH DISPLAY_HEIGHT < <($SCRIPT_DIR/sdl_resolution | awk -F ': ' '{print $2}')
+
+# Check if the values are not empty, otherwise, set default resolution
+if [ -z "$DISPLAY_WIDTH" ] || [ -z "$DISPLAY_HEIGHT" ]; then
+    DISPLAY_WIDTH=640
+    DISPLAY_HEIGHT=480
+fi
+
+if [ -f "/usr/share/plymouth/themes/text.plymouth" ]; then
+    CFW_NAME=$(sed -n 's/title=\(.*\) (\([0-9]\{8\}\))/\1/p' "/usr/share/plymouth/themes/text.plymouth" | cut -d' ' -f 1)
+    CFW_VERSION=$(sed -n 's/title=\(.*\) (\([0-9]\{8\}\))/\2/p' "/usr/share/plymouth/themes/text.plymouth" | cut -d' ' -f 1)
+
+else
+    # AmberELEC / EmuELEC
+    CFW_NAME=$(grep -a '^NAME=".*"' /etc/os-release | cut -d'"' -f 2)
+    CFW_VERSION=$(grep -a '^VERSION=".*"' /etc/os-release | cut -d'"' -f 2)
+
+    if [ -z "$CFW_NAME" ]; then
+        # uOS / JELOS
+        CFW_NAME=$(grep -a '^OS_NAME=".*"' /etc/os-release | cut -d'"' -f 2)
+        CFW_VERSION=$(grep -a '^OS_VERSION=".*"' /etc/os-release | cut -d'"' -f 2)
+    fi
+fi
+
+DEVICE_RAM=$(free -t | grep 'Total:' | awk '{printf("%.0f", ($2 / 1024 / 1024))}')
+
+if [[ "$CFW_NAME" == "EmuELEC" ]]; then
+    DEVICE_NAME=$(cat "/sys/firmware/devicetree/base/model" | cut -d' ' -f 2)
+elif [ -f "~/.config/.DEVICE" ]; then
+    DEVICE_NAME=$(cat "~/.config/.DEVICE")
+elif [ -f "~/.config/.OS_ARCH" ]; then
+    DEVICE_NAME=$(cat "~/.config/.OS_ARCH")
+elif [ -f "/sys/firmware/devicetree/base/model" ]; then
+    DEVICE_NAME=$(cat "/sys/firmware/devicetree/base/model" | cut -d' ' -f 2)
+fi
+
+ANALOG_STICKS=2
+
+##### FIXERUPPER
+# Here is where we can add custome rules to fill out extra info on the device.
+case "${DEVICE_NAME}" in
+    "RG353V"|"RG353P"|"RG353VS"|"RG353PS"|"RG353M")
+        DEVICE_CPU="RK3366"
+        ;;
+    "RG351MP")
+        DEVICE_CPU="RK3326"
+        ;;
+    "RG552")
+        DEVICE_CPU="RK3399"
+        ;;
+esac
+
+echo "# ${DEVICE_NAME} - ${CFW_NAME}"
+echo "CFW_NAME=${CFW_NAME}"
+echo "CFW_VERSION=${CFW_VERSION}"
+echo "DEVICE_NAME=${DEVICE_NAME}"
+echo "DEVICE_RAM=${DEVICE_RAM}"
+echo "DISPLAY_WIDTH=${DISPLAY_WIDTH}"
+echo "DISPLAY_HEIGHT=${DISPLAY_HEIGHT}"
