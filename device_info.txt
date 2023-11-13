@@ -31,6 +31,9 @@ if [ -f "/usr/share/plymouth/themes/text.plymouth" ]; then
     CFW_NAME=$(sed -n 's/title=\(.*\) (\([0-9]\{8\}\))/\1/p' "/usr/share/plymouth/themes/text.plymouth" | cut -d' ' -f 1)
     CFW_VERSION=$(sed -n 's/title=\(.*\) (\([0-9]\{8\}\))/\2/p' "/usr/share/plymouth/themes/text.plymouth" | cut -d' ' -f 1)
 
+    if [ ! -z "$(cat "/usr/share/plymouth/themes/text.plymouth" | grep "wuMMLe")" ]; then
+        CFW_NAME="${CFW_NAME} wuMMLe"
+    fi
 else
     # AmberELEC / EmuELEC
     CFW_NAME=$(grep -a '^NAME=".*"' /etc/os-release | cut -d'"' -f 2)
