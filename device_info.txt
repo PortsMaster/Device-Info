@@ -16,6 +16,8 @@
 # - ANALOG_STICKS
 # - DEVICE_CPU
 
+DEVICE_INFO_VERSION="0.1.0"
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # get current resolution
@@ -54,6 +56,7 @@ if [ -f "/usr/share/plymouth/themes/text.plymouth" ]; then
     fi
 
     unset CFW_INFO
+    unset CFW_FFS
 else
 
     # AmberELEC / EmuELEC
@@ -167,14 +170,17 @@ case "$(echo ${DEVICE_NAME} | tr '[:upper:]' '[:lower:]')" in
         ;;
 esac
 
-echo "# ${DEVICE_NAME} - ${CFW_NAME}"
-echo "\`\`\`bash"
-echo "CFW_NAME=${CFW_NAME}"
-echo "CFW_VERSION=${CFW_VERSION}"
-echo "DEVICE_NAME=${DEVICE_NAME}"
-echo "DEVICE_CPU=${DEVICE_CPU}"
-echo "DEVICE_RAM=${DEVICE_RAM}"
-echo "DISPLAY_WIDTH=${DISPLAY_WIDTH}"
-echo "DISPLAY_HEIGHT=${DISPLAY_HEIGHT}"
-echo "ANALOG_STICKS=${ANALOG_STICKS}"
-echo "\`\`\`"
+cat << __INFO_DUMP__ | tee "device_info_${CFW_NAME}_${DEVICE_NAME}.txt"
+# ${DEVICE_NAME} - ${CFW_NAME}
+\`\`\`bash
+DEVICE_INFO_VERSION=${DEVICE_INFO_VERSION}
+CFW_NAME=${CFW_NAME}
+CFW_VERSION=${CFW_VERSION}
+DEVICE_NAME=${DEVICE_NAME}
+DEVICE_CPU=${DEVICE_CPU}
+DEVICE_RAM=${DEVICE_RAM}
+DISPLAY_WIDTH=${DISPLAY_WIDTH}
+DISPLAY_HEIGHT=${DISPLAY_HEIGHT}
+ANALOG_STICKS=${ANALOG_STICKS}
+\`\`\`
+__INFO_DUMP__
