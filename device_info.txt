@@ -2,21 +2,17 @@
 
 ## New Device Info
 #
-# Seems to be working:
 # - DISPLAY_WIDTH
 # - DISPLAY_HEIGHT
 # - CFW_NAME
 # - CFW_VERSION
 # - DEVICE_RAM
-
-# Needs testing:
 # - DEVICE_NAME
-
-# To be done:
 # - ANALOG_STICKS
 # - DEVICE_CPU
+# usage `source <path_to>/device_info.txt`
 
-DEVICE_INFO_VERSION="0.1.0"
+DEVICE_INFO_VERSION="0.1.1"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -158,6 +154,10 @@ case "$(echo ${DEVICE_NAME} | tr '[:upper:]' '[:lower:]')" in
 
     "rg552")
         DEVICE_CPU="RK3399"
+        ;;
+
+    "gameforce")
+        DEVICE_CPU="RK3326"
         ;;
 
     "amlogic-ng")
