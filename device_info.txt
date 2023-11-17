@@ -165,6 +165,11 @@ case "$(echo ${DEVICE_NAME} | tr '[:upper:]' '[:lower:]')" in
         DEVICE_CPU="S922X"
         ;;
 
+    "super")
+        DEVICE_NAME="ODROID-GO Super"
+        DEVICE_CPU="RK3326"
+        ;;
+
     "odroid-go super")
         DEVICE_CPU="RK3326"
         ;;
